@@ -1,16 +1,27 @@
 package assignment.models;
 
-import org.jspecify.annotations.NonNull;
+import jakarta.persistence.*;
 
 import java.util.Objects;
 
+@Entity
+@Table(name="PRODOTTO")
 public class Prodotto {
 
-    @NonNull
+    @Id
+    @Column(name="CODICE_PRODOTTO", nullable = false, unique = true)
     private String codProdotto;
 
+    @Column(name="NOME")
     private String nome;
+
+    @Column(name="STOCK", nullable = false)
     private Integer stock;
+
+    @Version
+    private Long version;
+
+    public Prodotto() {}
 
     public String getCodProdotto() {
         return codProdotto;

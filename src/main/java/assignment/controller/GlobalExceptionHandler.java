@@ -51,4 +51,20 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
+
+    @ExceptionHandler(OrdineNonTrovatoException.class)
+    public ResponseEntity<Map<String, String>> handleOrdineNonTrovato(OrdineNonTrovatoException ex) {
+        Map<String, String> body = Map.of(
+                "error", ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(OrdineNonCancellabileException.class)
+    public ResponseEntity<Map<String, String>> handleOrdineNonCancellabile(OrdineNonCancellabileException ex) {
+        Map<String, String> body = Map.of(
+                "error", ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
 }

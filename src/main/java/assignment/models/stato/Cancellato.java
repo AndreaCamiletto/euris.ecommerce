@@ -1,6 +1,6 @@
 package assignment.models.stato;
 
-public class Consegnato implements StatoOrdine{
+public class Cancellato implements StatoOrdine{
 
     @Override
     public boolean cancellabile() {
@@ -17,10 +17,8 @@ public class Consegnato implements StatoOrdine{
         throw new UnsupportedOperationException();
     }
 
-
     @Override
     public String getNome() {
-        return "CONSEGNATO";
+        return "CANCELLATO";
     }
-
 }

@@ -12,6 +12,8 @@ public class Ordinato implements StatoOrdine{
         return new Consegnato();
     }
 
+    public StatoOrdine cancellazione() {return new Cancellato();}
+
     @Override
     public String getNome() {
         return "ORDINATO";

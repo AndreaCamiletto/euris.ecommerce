@@ -1,20 +1,34 @@
 package assignment.models;
 
-import org.jspecify.annotations.NonNull;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.util.Date;
 import java.util.Objects;
 
+@Entity
+@Table(name="CLIENTE")
 public class Cliente {
 
-    private String nome;
-    private String cognome;
+    @Id
+    @Column(name="CODICE_FISCALE", nullable = false, unique = true)
     private String codFiscale;
+
+    @Column(name="NOME")
+    private String nome;
+
+    @Column(name="COGNOME")
+    private String cognome;
+
+    @Column(name="DATA_NASCITA")
     private Date dataNascita;
+
+    @Column(name="EMAIL")
     private String email;
 
     public Cliente() {
-        // necessario per Jackson
     }
 
     public Cliente(String codFiscale) {

@@ -2,46 +2,73 @@ package assignment.models;
 
 import assignment.models.stato.Ordinato;
 import assignment.models.stato.StatoOrdine;
+import jakarta.persistence.*;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
+@Entity
+@Table(name="ORDINE")
 public class Ordine {
-    private String id;
-    private Map<Prodotto,Integer> ordine;
-    private Cliente cliente;
-    private StatoOrdine stato;
 
-    public Ordine(Map<Prodotto, Integer> ordine, Cliente cliente) {
-        this.id = UUID.randomUUID().toString();
-        this.ordine = ordine;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToMany(mappedBy = "ordine", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrdineProdotto> prodottiOrdine;
+
+    @ManyToOne
+    @JoinColumn(name="CODFISCALE", nullable=false)
+    private Cliente cliente;
+
+    @Column(name="STATO")
+    private String stato;
+
+    @Transient
+    private StatoOrdine statoOrdine;
+
+    @Version
+    private Long version;
+
+    public Ordine() {
+    }
+
+    public Ordine(List<OrdineProdotto> ordine, Cliente cliente) {
+        this.prodottiOrdine = ordine;
         this.cliente = cliente;
-        this.stato = new Ordinato();
+        statoOrdine = new Ordinato();
+        this.stato = getStato();
     }
 
     public void avanzaStato() {
-        this.stato = this.stato.prossimaFase();
+        this.statoOrdine = this.statoOrdine.prossimaFase();
+        this.stato = getStato();
+    }
+
+    public void avanzaStatoCancellato() {
+        this.statoOrdine = this.statoOrdine.cancellazione();
+        this.stato = getStato();
     }
 
     public boolean cancellabile() {
-        return stato.cancellabile();
+        return this.statoOrdine.cancellabile();
     }
 
     public String getStato() {
-        return stato.getNome();
+        return this.statoOrdine.getNome();
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public Map<Prodotto, Integer> getOrdine() {
-        return ordine;
+    public List<OrdineProdotto> getProdottiOrdine() {
+        return prodottiOrdine;
     }
 
-    public void setOrdine(Map<Prodotto, Integer> ordine) {
-        this.ordine = ordine;
+    public void setProdottiOrdine(List<OrdineProdotto> ordine) {
+        this.prodottiOrdine = ordine;
     }
 
     public Cliente getCliente() {
@@ -55,12 +82,12 @@ public class Ordine {
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Ordine ordine1)) return false;
-        return Objects.equals(getOrdine(), ordine1.getOrdine()) && Objects.equals(getCliente(), ordine1.getCliente());
+        return Objects.equals(getProdottiOrdine(), ordine1.getProdottiOrdine()) && Objects.equals(getCliente(), ordine1.getCliente());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getOrdine(), getCliente());
+        return Objects.hash(getProdottiOrdine(), getCliente());
     }
 
 
