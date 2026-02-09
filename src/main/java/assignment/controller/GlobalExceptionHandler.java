@@ -67,4 +67,12 @@ public class GlobalExceptionHandler {
         );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
+
+    @ExceptionHandler(OrdineNonAvanzabileException.class)
+    public ResponseEntity<Map<String, String>> handleOrdineNonAvanzabile(OrdineNonAvanzabileException ex) {
+        Map<String, String> body = Map.of(
+                "error", ex.getMessage()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
 }

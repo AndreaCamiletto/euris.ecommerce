@@ -12,6 +12,8 @@ import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -68,6 +70,11 @@ public class Ecommerce implements EcommerceInterface {
     }
 
     @Override
+    @Retryable(
+            value = OptimisticLockException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 50)
+    )
     @Transactional
     public boolean aggiungiOrdine(Ordine ordine) {
         aggiornaStockOrdine(ordine.getProdottiOrdine(),-1);
@@ -85,68 +92,67 @@ public class Ecommerce implements EcommerceInterface {
         return ordineRepository.findAll(pageable);
     }
 
+    @Retryable(
+            value = OptimisticLockException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 50)
+    )
     @Transactional
     public boolean deleteOrdine(Long id) {
-        int maxRetry = 3;
-        for(int tentativo = 0; tentativo < maxRetry; tentativo++) {
-            try {
-                Optional<Ordine> ordine = ordineRepository.findById(id);
-                if (ordine.isEmpty()) {
-                    throw new OrdineNonTrovatoException("Non è presente l'ordine avente l'id indicato");
-                }
-                if (!ordine.get().cancellabile()) {
-                    throw new OrdineNonCancellabileException("Non è possibile cancellare l'ordine in stato " + ordine.get().getStato());
-                }
-                ordine.get().avanzaStatoCancellato();
-                ordineRepository.save(ordine.get());
-                aggiornaStockOrdine(ordine.get().getProdottiOrdine(), 1);
-            } catch (OptimisticLockException e) {
-                if (tentativo == maxRetry - 1) {
-                    throw new RuntimeException(
-                            "Impossibile aggiornare lo stato dell'ordine per concorrenza. Riprova più tardi.", e);
-                }
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException ignored) {
-                }
-            }
+        Optional<Ordine> ordine = ordineRepository.findById(id);
+        if (ordine.isEmpty()) {
+            throw new OrdineNonTrovatoException("Non è presente l'ordine avente l'id indicato");
         }
+        if (!ordine.get().cancellabile()) {
+            throw new OrdineNonCancellabileException("Non è possibile cancellare l'ordine in stato " + ordine.get().getStato());
+        }
+        ordine.get().avanzaStatoCancellato();
+        ordineRepository.save(ordine.get());
+        aggiornaStockOrdine(ordine.get().getProdottiOrdine(), 1);
+
         return true;
     }
 
-
+    @Retryable(
+            value = OptimisticLockException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 50)
+    )
+    @Transactional
+    public boolean cambiaStato(Long id) {
+        Optional<Ordine> ordine = ordineRepository.findById(id);
+        if (ordine.isEmpty()) {
+            throw new OrdineNonTrovatoException("Non è presente l'ordine avente l'id indicato");
+        }
+        if(!ordine.get().avanzabile()) {
+            throw new OrdineNonAvanzabileException("L'ordine non può avanzare dallo stato " + ordine.get().getStato());
+        }
+        ordine.get().avanzaStato();
+        ordineRepository.save(ordine.get());
+        return true;
+    }
 
     private void aggiornaStockOrdine(List<OrdineProdotto> prodottiOrdine, Integer moltiplicatore) {
-        int maxRetry = 3;
-        for (int nrTentativo = 0; nrTentativo < maxRetry; nrTentativo++) {
-            try {
-                List<String> codiciProdotto = getCodiciProdotto(prodottiOrdine);
-                List<Prodotto> prodottiSalvati = prodottoRepository.findAllById(codiciProdotto);
-                Map<String, Prodotto> mapProdotti = getProdottiMap(prodottiSalvati);
-                for (OrdineProdotto prodottoOrdine : prodottiOrdine) {
-                    Prodotto prodottoCatalogo = mapProdotti.get(prodottoOrdine.getProdotto().getCodProdotto());
-                    if (prodottoCatalogo == null) {
-                        throw new ProdottoNonTrovatoException("Prodotto non presente: " + prodottoOrdine.getProdotto().getCodProdotto());
+        List<String> codiciProdotto = getCodiciProdotto(prodottiOrdine);
+        List<Prodotto> prodottiSalvati = prodottoRepository.findAllById(codiciProdotto);
+        Map<String, Prodotto> mapProdotti = getProdottiMap(prodottiSalvati);
+        for (OrdineProdotto prodottoOrdine : prodottiOrdine) {
+            Prodotto prodottoCatalogo = mapProdotti.get(prodottoOrdine.getProdotto().getCodProdotto());
+            if (prodottoCatalogo == null) {
+                throw new ProdottoNonTrovatoException("Prodotto non presente: " + prodottoOrdine.getProdotto().getCodProdotto());
 
-                    }
-                    if (prodottoCatalogo.getStock() < prodottoOrdine.getQuantita()) {
-                        throw new ProdottoOutOfStockException(
-                                "Impossibile effettuare ordine, quantità presente inferiore a quantità richiesta: "
-                                        + prodottoOrdine.getProdotto().getCodProdotto()
-                        );
-                    }
-                    prodottoCatalogo.setStock(prodottoCatalogo.getStock() + moltiplicatore * prodottoOrdine.getQuantita());
-                }
-                prodottoRepository.saveAll(mapProdotti.values());
-            } catch (OptimisticLockException e) {
-                if (nrTentativo == maxRetry) {
-                    throw new RuntimeException("Ordine non evadibile per concorrenza. Riprova più tardi.", e);
-                }
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException ignored) {}
             }
+            if (moltiplicatore < 0 && prodottoCatalogo.getStock() < prodottoOrdine.getQuantita()) {
+                throw new ProdottoOutOfStockException(
+                        "Impossibile effettuare ordine, quantità presente inferiore a quantità richiesta: "
+                                + prodottoOrdine.getProdotto().getCodProdotto()
+                );
+            }
+            prodottoCatalogo.setStock(prodottoCatalogo.getStock() + moltiplicatore * prodottoOrdine.getQuantita());
         }
+        prodottoRepository.saveAll(mapProdotti.values());
+
+
     }
 
     private List<String> getCodiciProdotto(List<OrdineProdotto> prodottiOrdine) {
@@ -164,7 +170,4 @@ public class Ecommerce implements EcommerceInterface {
         }
         return prodottiMap;
     }
-
-
-
 }

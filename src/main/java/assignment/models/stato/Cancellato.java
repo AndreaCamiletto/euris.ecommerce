@@ -21,4 +21,9 @@ public class Cancellato implements StatoOrdine{
     public String getNome() {
         return "CANCELLATO";
     }
+
+    @Override
+    public boolean avanzabile() {
+        return false;
+    }
 }

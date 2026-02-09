@@ -40,8 +40,6 @@ public class Controller {
         return ResponseEntity.status(HttpStatus.CREATED).body(cliente);
     }
 
-
-
     @GetMapping("/prodotti")
     public List<Prodotto> getProdotto(){
         return ecommerce.getProdotti();
@@ -83,6 +81,12 @@ public class Controller {
     @DeleteMapping("/ordini/{id}")
     public ResponseEntity<Long> deleteOrdine(@PathVariable Long id) {
         ecommerce.deleteOrdine(id);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(id);
+    }
+
+    @PostMapping("/ordini/{id}/stato")
+    public ResponseEntity<Long> avanzaStato(@PathVariable Long id) {
+        ecommerce.cambiaStato(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(id);
     }
 

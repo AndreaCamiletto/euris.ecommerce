@@ -2,6 +2,7 @@ package assignment.models;
 
 import assignment.models.stato.Ordinato;
 import assignment.models.stato.StatoOrdine;
+import assignment.models.stato.StatoOrdineFactory;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -31,6 +32,11 @@ public class Ordine {
     @Version
     private Long version;
 
+    @PostLoad
+    private void initStatoOrdine() {
+        this.statoOrdine = StatoOrdineFactory.fromNome(this.stato);
+    }
+
     public Ordine() {
     }
 
@@ -49,6 +55,10 @@ public class Ordine {
     public void avanzaStatoCancellato() {
         this.statoOrdine = this.statoOrdine.cancellazione();
         this.stato = getStato();
+    }
+
+    public boolean avanzabile() {
+        return this.statoOrdine.avanzabile();
     }
 
     public boolean cancellabile() {
@@ -81,14 +91,12 @@ public class Ordine {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Ordine ordine1)) return false;
-        return Objects.equals(getProdottiOrdine(), ordine1.getProdottiOrdine()) && Objects.equals(getCliente(), ordine1.getCliente());
+        if (!(o instanceof Ordine ordine)) return false;
+        return Objects.equals(getId(), ordine.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getProdottiOrdine(), getCliente());
+        return Objects.hashCode(getId());
     }
-
-
 }

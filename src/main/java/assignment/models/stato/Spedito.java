@@ -1,30 +1,30 @@
 package assignment.models.stato;
 
-public class Consegnato implements StatoOrdine{
+public class Spedito implements StatoOrdine {
 
     @Override
     public boolean cancellabile() {
-        return false;
+        return true;
     }
 
     @Override
     public StatoOrdine prossimaFase() {
-        return this;
+        return new Consegnato();
     }
 
     @Override
     public StatoOrdine cancellazione() {
-        throw new UnsupportedOperationException();
+        return new Cancellato();
     }
 
     @Override
     public String getNome() {
-        return "CONSEGNATO";
+        return "SPEDITO";
     }
 
     @Override
     public boolean avanzabile() {
-        return false;
+        return true;
     }
 
 }

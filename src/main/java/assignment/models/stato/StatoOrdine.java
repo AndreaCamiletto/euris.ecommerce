@@ -5,5 +5,6 @@ public interface StatoOrdine {
     StatoOrdine prossimaFase();
     StatoOrdine cancellazione();
     String getNome();
+    boolean avanzabile();
 
 }

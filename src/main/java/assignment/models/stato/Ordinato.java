@@ -9,7 +9,7 @@ public class Ordinato implements StatoOrdine{
 
     @Override
     public StatoOrdine prossimaFase() {
-        return new Consegnato();
+        return new Spedito();
     }
 
     public StatoOrdine cancellazione() {return new Cancellato();}
@@ -17,5 +17,10 @@ public class Ordinato implements StatoOrdine{
     @Override
     public String getNome() {
         return "ORDINATO";
+    }
+
+    @Override
+    public boolean avanzabile() {
+        return true;
     }
 }
