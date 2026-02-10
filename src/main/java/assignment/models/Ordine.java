@@ -3,8 +3,10 @@ package assignment.models;
 import assignment.models.stato.Ordinato;
 import assignment.models.stato.StatoOrdine;
 import assignment.models.stato.StatoOrdineFactory;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,7 +19,9 @@ public class Ordine {
     private Long id;
 
     @OneToMany(mappedBy = "ordine", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrdineProdotto> prodottiOrdine;
+    @JsonSetter(nulls = Nulls.AS_EMPTY)
+    @JsonProperty("prodottiOrdine")
+    private List<OrdineProdotto> ordineProdotto = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name="CODFISCALE", nullable=false)
@@ -38,13 +42,21 @@ public class Ordine {
     }
 
     public Ordine() {
+        this.ordineProdotto = new ArrayList<>();
+        this.statoOrdine = new Ordinato();
+        this.stato = "ORDINATO";
     }
 
-    public Ordine(List<OrdineProdotto> ordine, Cliente cliente) {
-        this.prodottiOrdine = ordine;
-        this.cliente = cliente;
-        statoOrdine = new Ordinato();
-        this.stato = getStato();
+    public void addProdotto(OrdineProdotto prodottoOrdine) {
+        ordineProdotto.add(prodottoOrdine);
+        prodottoOrdine.setOrdine(this);
+    }
+
+
+
+    public void removeProdotto(OrdineProdotto prodottoOrdine) {
+        ordineProdotto.remove(prodottoOrdine);
+        prodottoOrdine.setOrdine(null);
     }
 
     public void avanzaStato() {
@@ -73,12 +85,17 @@ public class Ordine {
         return id;
     }
 
-    public List<OrdineProdotto> getProdottiOrdine() {
-        return prodottiOrdine;
+    public List<OrdineProdotto> getOrdineProdotto() {
+        return ordineProdotto;
     }
 
-    public void setProdottiOrdine(List<OrdineProdotto> ordine) {
-        this.prodottiOrdine = ordine;
+    public void setProdottiOrdine(List<OrdineProdotto> prodottiOrdine) {
+        this.ordineProdotto.clear();
+        if (prodottiOrdine != null) {
+            for (OrdineProdotto op : prodottiOrdine) {
+                addProdotto(op);
+            }
+        }
     }
 
     public Cliente getCliente() {

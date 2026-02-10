@@ -77,7 +77,7 @@ public class Ecommerce implements EcommerceInterface {
     )
     @Transactional
     public boolean aggiungiOrdine(Ordine ordine) {
-        aggiornaStockOrdine(ordine.getProdottiOrdine(),-1);
+        aggiornaStockOrdine(ordine.getOrdineProdotto(),-1);
         ordineRepository.save(ordine);
         return true;
     }
@@ -108,7 +108,7 @@ public class Ecommerce implements EcommerceInterface {
         }
         ordine.get().avanzaStatoCancellato();
         ordineRepository.save(ordine.get());
-        aggiornaStockOrdine(ordine.get().getProdottiOrdine(), 1);
+        aggiornaStockOrdine(ordine.get().getOrdineProdotto(), 1);
 
         return true;
     }
@@ -140,7 +140,6 @@ public class Ecommerce implements EcommerceInterface {
             Prodotto prodottoCatalogo = mapProdotti.get(prodottoOrdine.getProdotto().getCodProdotto());
             if (prodottoCatalogo == null) {
                 throw new ProdottoNonTrovatoException("Prodotto non presente: " + prodottoOrdine.getProdotto().getCodProdotto());
-
             }
             if (moltiplicatore < 0 && prodottoCatalogo.getStock() < prodottoOrdine.getQuantita()) {
                 throw new ProdottoOutOfStockException(
@@ -149,10 +148,9 @@ public class Ecommerce implements EcommerceInterface {
                 );
             }
             prodottoCatalogo.setStock(prodottoCatalogo.getStock() + moltiplicatore * prodottoOrdine.getQuantita());
+            prodottoOrdine.setProdotto(prodottoCatalogo);
         }
         prodottoRepository.saveAll(mapProdotti.values());
-
-
     }
 
     private List<String> getCodiciProdotto(List<OrdineProdotto> prodottiOrdine) {

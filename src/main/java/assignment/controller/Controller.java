@@ -84,7 +84,7 @@ public class Controller {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(id);
     }
 
-    @PostMapping("/ordini/{id}/stato")
+    @PatchMapping("/ordini/{id}/stato")
     public ResponseEntity<Long> avanzaStato(@PathVariable Long id) {
         ecommerce.cambiaStato(id);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(id);

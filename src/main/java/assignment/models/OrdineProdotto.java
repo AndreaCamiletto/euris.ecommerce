@@ -1,5 +1,6 @@
 package assignment.models;
 
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 
 import java.util.Objects;
@@ -14,6 +15,7 @@ public class OrdineProdotto {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "ORDINE_ID")
+    @JsonIgnore
     private Ordine ordine;
 
     @ManyToOne(optional = false)
