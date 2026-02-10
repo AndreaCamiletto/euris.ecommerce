@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Objects;
 
@@ -23,7 +24,7 @@ public class Cliente {
     private String cognome;
 
     @Column(name="DATA_NASCITA")
-    private Date dataNascita;
+    private LocalDate dataNascita;
 
     @Column(name="EMAIL")
     private String email;
@@ -38,7 +39,7 @@ public class Cliente {
         this.codFiscale = codFiscale;
     }
 
-    public Cliente(String nome, String cognome, String codFiscale, Date dataNascita, String email) {
+    public Cliente(String nome, String cognome, String codFiscale, LocalDate dataNascita, String email) {
         if (codFiscale == null || codFiscale.isBlank()) {
             throw new IllegalArgumentException("Il codice fiscale non può essere nullo o vuoto");
         }
@@ -76,11 +77,11 @@ public class Cliente {
         this.codFiscale = codFiscale;
     }
 
-    public Date getDataNascita() {
+    public LocalDate getDataNascita() {
         return dataNascita;
     }
 
-    public void setDataNascita(Date dataNascita) {
+    public void setDataNascita(LocalDate dataNascita) {
         this.dataNascita = dataNascita;
     }
 

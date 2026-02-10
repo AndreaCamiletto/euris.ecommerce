@@ -69,4 +69,8 @@ public class Prodotto {
     public int hashCode() {
         return Objects.hashCode(getCodProdotto());
     }
+
+    public Long getVersion() {
+        return version;
+    }
 }

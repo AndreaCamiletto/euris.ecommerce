@@ -106,6 +106,10 @@ public class Ordine {
         this.cliente = cliente;
     }
 
+    public Long getVersion() {
+        return version;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Ordine ordine)) return false;
