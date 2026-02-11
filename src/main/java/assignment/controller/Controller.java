@@ -1,9 +1,12 @@
 package assignment.controller;
 
-import assignment.models.Cliente;
-import assignment.models.Ordine;
-import assignment.models.Prodotto;
-import org.springframework.beans.factory.annotation.Autowired;
+import assignment.dto.request.ClienteRequestDTO;
+import assignment.dto.request.OrdineRequestDTO;
+import assignment.dto.request.ProdottoRequestDTO;
+import assignment.dto.response.ClienteResponseDTO;
+import assignment.dto.response.OrdineResponseDTO;
+import assignment.dto.response.ProdottoResponseDTO;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,77 +20,75 @@ import java.util.List;
 @RestController
 public class Controller {
 
-    @Autowired
-    Ecommerce ecommerce;
+    private final Ecommerce ecommerce;
+
+    public Controller(Ecommerce ecommerce) {
+        this.ecommerce = ecommerce;
+    }
 
     @GetMapping("/clienti")
-    public List<Cliente> getClienti(){
-        return ecommerce.getClienti();
+    public ResponseEntity<List<ClienteResponseDTO>> getClienti(){
+        return ResponseEntity.ok(ecommerce.getClienti());
     }
 
 
     @GetMapping("/clientiPaginati")
-    public Page<Cliente> listaClienti(
+    public ResponseEntity<Page<ClienteResponseDTO>> listaClienti(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return ecommerce.getClientiPaginati(pageable);
+        return ResponseEntity.ok(ecommerce.getClientiPaginati(pageable));
     }
 
     @PostMapping("/clienti")
-    public ResponseEntity<Cliente> insertCliente(@RequestBody Cliente cliente) {
-        ecommerce.aggiungiCliente(cliente);
-        return ResponseEntity.status(HttpStatus.CREATED).body(cliente);
+    public ResponseEntity<ClienteResponseDTO> insertCliente(@Valid @RequestBody ClienteRequestDTO cliente) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ecommerce.aggiungiCliente(cliente));
     }
 
     @GetMapping("/prodotti")
-    public List<Prodotto> getProdotto(){
-        return ecommerce.getProdotti();
+    public ResponseEntity<List<ProdottoResponseDTO>> getProdotto(){
+        return ResponseEntity.ok(ecommerce.getProdotti());
     }
 
     @GetMapping("/prodottiPaginati")
-    public Page<Prodotto> listaProdotti(
+    public ResponseEntity<Page<ProdottoResponseDTO>> listaProdotti(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return ecommerce.getProdottiPaginati(pageable);
+        return ResponseEntity.ok(ecommerce.getProdottiPaginati(pageable));
     }
 
     @PostMapping("/prodotti")
-    public ResponseEntity<Prodotto> insertProdotto(@RequestBody Prodotto prodotto) {
-        ecommerce.aggiungiProdotto(prodotto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(prodotto);
+    public ResponseEntity<ProdottoResponseDTO> insertProdotto(@Valid @RequestBody ProdottoRequestDTO prodotto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ecommerce.aggiungiProdotto(prodotto));
     }
 
     @GetMapping("/ordini")
-    public List<Ordine> getOrdini(){
-        return ecommerce.getOrdini();
+    public ResponseEntity<List<OrdineResponseDTO>> getOrdini(){
+        return ResponseEntity.ok(ecommerce.getOrdini());
     }
 
     @GetMapping("/ordiniPaginati")
-    public Page<Ordine> getListaOrdini(
+    public ResponseEntity<Page<OrdineResponseDTO>> getListaOrdini(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return ecommerce.getOrdiniPaginati(pageable);
+        return ResponseEntity.ok(ecommerce.getOrdiniPaginati(pageable));
     }
 
     @PostMapping("/ordini")
-    public ResponseEntity<Ordine> insertOrdine(@RequestBody Ordine ordine) {
-        ecommerce.aggiungiOrdine(ordine);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ordine);
+    public ResponseEntity<OrdineResponseDTO> insertOrdine(@Valid @RequestBody OrdineRequestDTO ordine) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ecommerce.aggiungiOrdine(ordine));
     }
 
     @DeleteMapping("/ordini/{id}")
-    public ResponseEntity<Long> deleteOrdine(@PathVariable Long id) {
-        ecommerce.deleteOrdine(id);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(id);
+    public ResponseEntity<OrdineResponseDTO> deleteOrdine(@PathVariable Long id) {
+        return ResponseEntity.ok(ecommerce.deleteOrdine(id));
     }
 
     @PatchMapping("/ordini/{id}/stato")
-    public ResponseEntity<Long> avanzaStato(@PathVariable Long id) {
-        ecommerce.cambiaStato(id);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(id);
+    public ResponseEntity<OrdineResponseDTO> avanzaStato(@PathVariable Long id) {
+        return ResponseEntity.ok(ecommerce.cambiaStato(id));
     }
 
 }

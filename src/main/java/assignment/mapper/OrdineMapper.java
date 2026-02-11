@@ -19,8 +19,11 @@ import java.util.Map;
 @Component
 public class OrdineMapper {
 
-    @Autowired
-    private OrdineProdottoMapper ordineProdottoMapper;
+    private final OrdineProdottoMapper ordineProdottoMapper;
+
+    public OrdineMapper(OrdineProdottoMapper ordineProdottoMapper) {
+        this.ordineProdottoMapper = ordineProdottoMapper;
+    }
 
     public Ordine toEntity(OrdineRequestDTO request, Cliente cliente, Map<String, Prodotto> prodotti) {
         if(request == null) {

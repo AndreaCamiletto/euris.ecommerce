@@ -15,7 +15,6 @@ public class OrdineProdotto {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "ORDINE_ID")
-    @JsonIgnore
     private Ordine ordine;
 
     @ManyToOne(optional = false)
