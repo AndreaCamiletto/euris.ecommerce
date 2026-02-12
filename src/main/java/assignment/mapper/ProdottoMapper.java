@@ -19,15 +19,14 @@ public class ProdottoMapper {
         return prodotto;
     }
 
-    public ProdottoResponseDTO toReponseDTO(Prodotto prodotto) {
+    public ProdottoResponseDTO toResponseDTO(Prodotto prodotto) {
         if(prodotto == null) {
             return null;
         }
         return new ProdottoResponseDTO(
                 prodotto.getCodProdotto(),
                 prodotto.getNome(),
-                prodotto.getStock(),
-                prodotto.getVersion()
+                prodotto.getStock()
         );
     }
 }

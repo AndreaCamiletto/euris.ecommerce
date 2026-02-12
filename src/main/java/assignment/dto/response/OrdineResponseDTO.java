@@ -6,7 +6,6 @@ public record OrdineResponseDTO(
         Long id,
         String codFiscale,
         List<OrdineProdottoResponseDTO> prodottiOrdine,
-        String stato,
-        Long version
+        String stato
 ) {
 }

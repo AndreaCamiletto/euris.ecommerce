@@ -18,9 +18,6 @@ public class Prodotto {
     @Column(name="STOCK", nullable = false)
     private Integer stock;
 
-    @Version
-    private Long version;
-
     public Prodotto() {}
 
     public String getCodProdotto() {
@@ -70,7 +67,4 @@ public class Prodotto {
         return Objects.hashCode(getCodProdotto());
     }
 
-    public Long getVersion() {
-        return version;
-    }
 }

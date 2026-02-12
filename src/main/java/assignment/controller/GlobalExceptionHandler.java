@@ -2,6 +2,8 @@ package assignment.controller;
 
 import assignment.exceptions.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,11 +15,13 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     @ExceptionHandler(ClienteDuplicatoException.class)
     public ResponseEntity<Map<String, String>> handleClienteDuplicato(ClienteDuplicatoException ex) {
         Map<String, String> body = Map.of(
                 "error", ex.getMessage()
         );
+        log.warn("Tentativo di creazione cliente duplicato: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
@@ -26,6 +30,7 @@ public class GlobalExceptionHandler {
         Map<String, String> body = Map.of(
                 "error", ex.getMessage()
         );
+        log.warn("Tentativo di creazione prodotto duplicato: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
@@ -34,6 +39,7 @@ public class GlobalExceptionHandler {
         Map<String, String> body = Map.of(
                 "error", ex.getMessage()
         );
+        log.warn("Tentativo di creazione ordine duplicato: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
@@ -42,6 +48,7 @@ public class GlobalExceptionHandler {
         Map<String, String> body = Map.of(
                 "error", ex.getMessage()
         );
+        log.error("Prodotto non trovato: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
@@ -50,6 +57,7 @@ public class GlobalExceptionHandler {
         Map<String, String> body = Map.of(
                 "error", ex.getMessage()
         );
+        log.error("Tentativo di ordine con quantita superiore allo stock: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
@@ -58,6 +66,7 @@ public class GlobalExceptionHandler {
         Map<String, String> body = Map.of(
                 "error", ex.getMessage()
         );
+        log.error("Ordine non trovato: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
@@ -74,6 +83,7 @@ public class GlobalExceptionHandler {
         Map<String, String> body = Map.of(
                 "error", ex.getMessage()
         );
+        log.warn("Violazione regola di business: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
@@ -82,6 +92,25 @@ public class GlobalExceptionHandler {
         Map<String, String> body = Map.of(
                 "error", ex.getMessage()
         );
+        log.warn("Errore di validazione input: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
+    @ExceptionHandler(ClienteNonTrovatoException.class)
+    public ResponseEntity<Map<String, String>> handleClienteNonTrovato(ClienteNonTrovatoException ex) {
+        Map<String, String> body = Map.of(
+                "error", ex.getMessage()
+        );
+        log.error("Cliente non trovato: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleGeneric(Exception ex) {
+        Map<String, String> body = Map.of(
+                "error", "Errore interno del server"
+        );
+        log.error("ERRORE NON GESTITO: ", ex);
+        return ResponseEntity.internalServerError().body(body);
     }
 }

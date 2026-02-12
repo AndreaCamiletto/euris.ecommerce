@@ -59,8 +59,7 @@ public class OrdineMapper {
                 ordine.getId(),
                 ordine.getCliente().getCodFiscale(),
                 ordiniProdottoReponseDTO,
-                ordine.getStato(),
-                ordine.getVersion()
+                ordine.getStato()
         );
     }
 }
