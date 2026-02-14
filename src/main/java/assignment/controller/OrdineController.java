@@ -69,7 +69,7 @@ public class OrdineController {
                     @ApiResponse(responseCode = "404", description = "Ordine non trovato")
             }
     )
-    @DeleteMapping("/cancella-ordine/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<OrdineResponseDTO> deleteOrdine(@PathVariable Long id) {
         log.warn("Richiesta eliminazione ordine ID: {}", id);
         OrdineResponseDTO eliminato = ordineService.deleteOrdine(id);
@@ -85,7 +85,7 @@ public class OrdineController {
                     @ApiResponse(responseCode = "400", description = "L'ordine ha già raggiunto lo stato finale")
             }
     )
-    @PatchMapping("/avanza-ordine/{id}/stato")
+    @PatchMapping("/{id}/stato")
     public ResponseEntity<OrdineResponseDTO> avanzaStato(@PathVariable Long id) {
         log.info("Richiesta avanzamento stato per ordine ID: {}", id);
         OrdineResponseDTO aggiornato = ordineService.cambiaStato(id);

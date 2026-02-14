@@ -21,16 +21,17 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class OrdineService {
 
     private final static Logger log = LoggerFactory.getLogger(OrdineService.class);
-    private OrdineRepository ordineRepository;
-    private OrdineMapper ordineMapper;
-    private ClienteRepository clienteRepository;
-    private ProdottoRepository prodottoRepository;
+    private final OrdineRepository ordineRepository;
+    private final OrdineMapper ordineMapper;
+    private final ClienteRepository clienteRepository;
+    private final ProdottoRepository prodottoRepository;
 
     public OrdineService(OrdineRepository ordineRepository, OrdineMapper ordineMapper, ClienteRepository clienteRepository, ProdottoRepository prodottoRepository) {
         this.ordineRepository = ordineRepository;
@@ -60,11 +61,24 @@ public class OrdineService {
                     log.error("Creazione ordine fallita: Cliente {} non trovato", ordineRequest.codFiscale());
                     return new ClienteNonTrovatoException("Cliente " + ordineRequest.codFiscale() + "non trovato");
                 });
-
         List<String> codiciProdotto = ordineRequest.prodottiOrdine().stream()
                 .map(OrdineProdottoRequestDTO::codProdotto)
                 .toList();
-        Map<String, Prodotto> mappaProdotti = getProdottiMap(prodottoRepository.findAllById(codiciProdotto));
+
+        List<Prodotto> prodotti = prodottoRepository.findAllById(codiciProdotto);
+        if (prodotti.size() != codiciProdotto.size()) {
+            Set<String> trovati = prodotti.stream()
+                    .map(Prodotto::getCodProdotto)
+                    .collect(Collectors.toSet());
+            List<String> mancanti = codiciProdotto.stream()
+                    .filter(cod -> !trovati.contains(cod))
+                    .toList();
+            throw new ProdottoNonTrovatoException(
+                    "Prodotti non trovati: " + mancanti
+            );
+        }
+
+        Map<String, Prodotto> mappaProdotti = getProdottiMap(prodotti);
         Ordine ordine = ordineMapper.toEntity(ordineRequest, cliente,mappaProdotti);
         log.debug("Verifica e aggiornamento stock per {} prodotti", ordine.getOrdineProdotto().size());
         aggiornaStockOrdine(ordine.getOrdineProdotto(),-1);

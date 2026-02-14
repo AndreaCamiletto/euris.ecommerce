@@ -8,6 +8,7 @@ import assignment.mapper.ProdottoMapper;
 import assignment.repository.ProdottoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -42,13 +43,17 @@ public class ProdottoService {
 
     public ProdottoResponseDTO aggiungiProdotto(ProdottoRequestDTO prodottoRequest) {
         log.info("Tentativo di aggiunta nuovo prodotto: {}", prodottoRequest.codProdotto());
-        if(prodottoRepository.existsById(prodottoRequest.codProdotto())) {
+        if (prodottoRepository.existsById(prodottoRequest.codProdotto())) {
             log.warn("Impossibile aggiungere prodotto: codice {} già esistente", prodottoRequest.codProdotto());
             throw new ProdottoDuplicatoException("Prodotto già presente: " + prodottoRequest.codProdotto());
         }
-        return prodottoMapper.toResponseDTO(prodottoRepository.save(prodottoMapper.toEntity(prodottoRequest)));
-    }
+        try {
+            return prodottoMapper.toResponseDTO(prodottoRepository.save(prodottoMapper.toEntity(prodottoRequest)));
 
+        } catch (DataIntegrityViolationException e) {
+            throw new ProdottoDuplicatoException("Cliente già presente: " + prodottoRequest.codProdotto());
+        }
+    }
     public ProdottoResponseDTO getProdotto(String codProdotto) {
         log.debug("Ricerca prodotto con codice: {}", codProdotto);
         return prodottoRepository.findById(codProdotto)

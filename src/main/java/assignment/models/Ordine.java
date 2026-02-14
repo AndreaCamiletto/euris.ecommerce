@@ -33,9 +33,6 @@ public class Ordine {
     @Transient
     private StatoOrdine statoOrdine;
 
-    @Version
-    private Long version;
-
     @PostLoad
     private void initStatoOrdine() {
         this.statoOrdine = StatoOrdineFactory.fromNome(this.stato);

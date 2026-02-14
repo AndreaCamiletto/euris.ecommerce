@@ -8,6 +8,7 @@ import assignment.mapper.ClienteMapper;
 import assignment.repository.ClienteRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,7 @@ import java.util.List;
 @Service
 public class ClienteService {
 
-    private final Logger log = LoggerFactory.getLogger(ClienteService.class);
+    private final static Logger log = LoggerFactory.getLogger(ClienteService.class);
 
     private final ClienteRepository clienteRepository;
     private final ClienteMapper clienteMapper;
@@ -47,7 +48,12 @@ public class ClienteService {
             log.warn("Salvataggio fallito: Cliente {} già presente a sistema", clienteRequest.codFiscale());
             throw new ClienteDuplicatoException("Cliente già presente: " + clienteRequest.codFiscale());
         }
-        return clienteMapper.toResponseDTO(clienteRepository.save(clienteMapper.toEntity(clienteRequest)));
+        try {
+            return clienteMapper.toResponseDTO(clienteRepository.save(clienteMapper.toEntity(clienteRequest)));
+        } catch (DataIntegrityViolationException e) {
+            throw new ClienteDuplicatoException("Cliente già presente: " + clienteRequest.codFiscale());
+        }
+
     }
 
     public ClienteResponseDTO getCliente(String codFiscale) {
