@@ -59,7 +59,7 @@ public class OrdineService {
         Cliente cliente = clienteRepository.findById(ordineRequest.codFiscale()).
                 orElseThrow(() -> {
                     log.error("Creazione ordine fallita: Cliente {} non trovato", ordineRequest.codFiscale());
-                    return new ClienteNonTrovatoException("Cliente " + ordineRequest.codFiscale() + "non trovato");
+                    return new ClienteNonTrovatoException("Cliente " + ordineRequest.codFiscale() + " non trovato");
                 });
         List<String> codiciProdotto = ordineRequest.prodottiOrdine().stream()
                 .map(OrdineProdottoRequestDTO::codProdotto)
@@ -104,7 +104,7 @@ public class OrdineService {
     public OrdineResponseDTO cambiaStato(Long id) {
         log.info("Avanzamento stato ordine ID: {}", id);
         Ordine ordine = ordineRepository.findById(id).
-                orElseThrow(() -> new OrdineNonTrovatoException("Non è presente l'ordine avente l'id indicato"));
+                orElseThrow(() -> new OrdineNonTrovatoException("Non è presente l'ordine avente l'id indicato: " + id));
         if(!ordine.avanzabile()) {
             log.warn("Avanzamento fallito: ordine {} già in stato finale", id);
             throw new OrdineNonAvanzabileException("L'ordine non può avanzare dallo stato " + ordine.getStato());

@@ -51,7 +51,7 @@ public class ProdottoService {
             return prodottoMapper.toResponseDTO(prodottoRepository.save(prodottoMapper.toEntity(prodottoRequest)));
 
         } catch (DataIntegrityViolationException e) {
-            throw new ProdottoDuplicatoException("Cliente già presente: " + prodottoRequest.codProdotto());
+            throw new ProdottoDuplicatoException("Prodotto già presente: " + prodottoRequest.codProdotto());
         }
     }
     public ProdottoResponseDTO getProdotto(String codProdotto) {
