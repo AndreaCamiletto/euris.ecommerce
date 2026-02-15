@@ -39,8 +39,7 @@ class InserimentoOrdineConcorrenteTest {
         prodotto.setCodProdotto(codProd);
         prodotto.setNome("Prodotto Limitato");
         prodotto.setStock(2);
-        prodottoRepository.save(prodotto);
-        prodottoRepository.flush();
+        prodottoRepository.saveAndFlush(prodotto);
 
         String codProd2 = "PROD_CONC2";
         Prodotto prodotto2 = new Prodotto();
@@ -49,7 +48,6 @@ class InserimentoOrdineConcorrenteTest {
         prodotto2.setStock(1);
         prodottoRepository.saveAndFlush(prodotto2);
 
-        // --- Setup clienti ---
         Cliente clienteA = new Cliente(
                 "Mario",
                 "Rossi",
@@ -163,7 +161,7 @@ class InserimentoOrdineConcorrenteTest {
 
         for (int i = 0; i < numeroThread; i++) {
             Callable<String> task = () -> {
-                startLatch.await(); // partenza simultanea
+                startLatch.await();
                 try {
                     ordineService.aggiungiOrdine(
                             new OrdineRequestDTO("CF_STRESS",
@@ -177,7 +175,7 @@ class InserimentoOrdineConcorrenteTest {
             futures.add(executor.submit(task));
         }
 
-        startLatch.countDown(); // via ai thread
+        startLatch.countDown();
 
         List<String> risultati = new ArrayList<>();
         for (Future<String> f : futures) {
