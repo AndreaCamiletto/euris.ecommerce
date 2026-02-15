@@ -2,7 +2,6 @@ package assignment.controller;
 
 import assignment.dto.request.OrdineProdottoRequestDTO;
 import assignment.dto.request.OrdineRequestDTO;
-import assignment.dto.response.OrdineProdottoResponseDTO;
 import assignment.dto.response.OrdineResponseDTO;
 import assignment.service.OrdineService;
 import com.fasterxml.jackson.databind.ObjectMapper;

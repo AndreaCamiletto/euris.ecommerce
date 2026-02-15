@@ -1,6 +1,5 @@
 package assignment.controller;
 
-import assignment.controller.ClienteController;
 import assignment.dto.request.ClienteRequestDTO;
 import assignment.dto.response.ClienteResponseDTO;
 import assignment.exceptions.ClienteDuplicatoException;
